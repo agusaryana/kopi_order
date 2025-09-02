@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <title>KCD Coffee Order</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: #0a192f;
+      margin: 0;
+      padding: 0;
+      color: #fff;
+    }
+    .container {
+      max-width: 800px;
+      margin: 40px auto;
+      background: #ffffff;
+      padding: 30px;
+      border-radius: 16px;
+      box-shadow: 0px 6px 20px rgba(0,0,0,0.25);
+      color: #333;
+    }
+    h2 {
+      text-align: center;
+      color: #0a192f;
+      margin-bottom: 25px;
+      font-size: 28px;
+    }
+    .item {
+      margin-bottom: 20px;
+      padding: 15px;
+      border: 1px solid #ddd;
+      border-radius: 12px;
+      background: #f8f9fc;
+      position: relative;
+    }
+    .menu-preview {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+      margin-bottom: 10px;
+    }
+    .menu-preview img {
+      width: 80px;
+      height: 80px;
+      object-fit: cover;
+      border-radius: 8px;
+      border: 2px solid #0a192f;
+    }
+    label {
+      font-weight: 600;
+      display: block;
+      margin-bottom: 6px;
+      color: #0a192f;
+    }
+    input, select, textarea {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid #bbb;
+      border-radius: 8px;
+      margin-bottom: 10px;
+      font-size: 14px;
+    }
+    textarea { resize: vertical; }
+    button {
+      background: #0a192f;
+      color: white;
+      border: none;
+      padding: 12px 20px;
+      border-radius: 10px;
+      cursor: pointer;
+      font-size: 16px;
+      font-weight: bold;
+      transition: 0.3s;
+    }
+    button:hover { background: #112d4e; }
+    .btn-remove {
+      background: #dc3545;
+      font-size: 14px;
+      padding: 8px 14px;
+      position: absolute;
+      top: 10px;
+      right: 10px;
+    }
+    .btn-remove:hover { background: #c82333; }
+    #msg { font-weight: bold; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>☕ KCD Coffee Order</h2>
+    <form id="orderForm">
+      <div class="item">
+        <label>Nama Pemesan</label>
+        <input type="text" name="nama" placeholder="Masukkan nama anda..." required>
+      </div>
+
+      <div id="menuList"></div>
+
+      <button type="button" onclick="tambahMenu()">+ Tambah Menu</button>
+      <div class="item">
+        <label>Catatan</label>
+        <textarea name="catatan" placeholder="Contoh: tanpa gula / extra ice..."></textarea>
+      </div>
+      <button type="submit">Kirim Pesanan</button>
+    </form>
+    <p id="msg" style="text-align:center; margin-top:15px; color:green;"></p>
+  </div>
+
+  <script>
+    const scriptURL = "https://script.google.com/macros/s/AKfycbwkUXfg2M1fC3xR_bbFPu_V29dVmVocSBYuyn9_X6muN8aCeOUrbBbF1aBTDYsaG5q4Iw/exec";
+    const form = document.getElementById("orderForm");
+    const msg = document.getElementById("msg");
+    const menuList = document.getElementById("menuList");
+
+    // mapping menu -> gambar
+    const menuImages = {
+      "Americano": "image/americano.png",
+      "Cappuccino": "image/cappuccino.png",
+      "Latte": "image/latte.png",
+      "Matcha": "image/matcha.png",
+      "Tea": "image/tea.png",
+      "Lemon Tea": "image/lemon_tea.png", // pakai underscore biar aman
+      "Balinesse Coffee": "image/balinese.png"
+    };
+
+    function tambahMenu() {
+      let div = document.createElement("div");
+      div.classList.add("item", "menu-item");
+      div.innerHTML = `
+        <div class="menu-preview">
+          <img src="${menuImages['Americano']}" alt="Menu Image" class="preview-img">
+          <div style="flex:1">
+            <label>Menu</label>
+            <select name="menu[]" onchange="updateImage(this)">
+              ${Object.keys(menuImages).map(m => `<option value="${m}">${m}</option>`).join("")}
+            </select>
+            <label>Pilihan</label>
+            <select name="tipe[]">
+              <option value="Hot">Hot</option>
+              <option value="Ice">Ice</option>
+            </select>
+            <label>Jumlah</label>
+            <input type="number" name="jumlah[]" min="1" value="1">
+          </div>
+        </div>
+        <button type="button" class="btn-remove" onclick="hapusMenu(this)">Hapus</button>
+      `;
+      menuList.appendChild(div);
+    }
+
+    function hapusMenu(btn) {
+      btn.parentElement.remove();
+    }
+
+    function updateImage(selectEl) {
+      const menu = selectEl.value;
+      const imgEl = selectEl.closest(".menu-preview").querySelector(".preview-img");
+      imgEl.src = menuImages[menu] || "image/default.png";
+    }
+
+    form.addEventListener("submit", e => {
+      e.preventDefault();
+      fetch(scriptURL, { method: "POST", body: new FormData(form)})
+        .then(response => {
+          msg.innerHTML = "✅ Pesanan berhasil dikirim!";
+          form.reset();
+          menuList.innerHTML = ""; 
+          tambahMenu(); 
+        })
+        .catch(error => {
+          msg.innerHTML = "❌ Gagal mengirim pesanan!";
+        });
+    });
+
+    // Tambahkan menu default pertama
+    tambahMenu();
+  </script>
+</body>
+</html>
