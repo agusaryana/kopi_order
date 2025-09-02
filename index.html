@@ -2,6 +2,7 @@
 <html lang="id">
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>KCD Coffee Order</title>
   <style>
     body {
@@ -84,6 +85,31 @@
     }
     .btn-remove:hover { background: #c82333; }
     #msg { font-weight: bold; }
+
+     @media (max-width: 600px) {
+  .container {
+    margin: 20px;
+    padding: 20px;
+  }
+
+  h2 {
+    font-size: 22px;
+  }
+
+  .menu-preview img {
+    width: 100px;
+    height: 100px;
+  }
+
+  input, select, textarea, button {
+    font-size: 16px; /* biar enak dibaca di HP */
+    padding: 14px;
+  }
+
+  button {
+    width: 100%; /* tombol full di layar HP */
+  }
+}
   </style>
 </head>
 <body>
